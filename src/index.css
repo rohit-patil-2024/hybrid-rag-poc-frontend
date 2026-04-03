@@ -307,6 +307,25 @@ p {
   color: var(--ink-soft);
 }
 
+.upload-log-console {
+  margin-top: 0.55rem;
+  border: 1px solid #d5e3ec;
+  border-radius: 12px;
+  background: #0f1c24;
+  color: #d7e9f4;
+  min-height: 140px;
+  max-height: 210px;
+  overflow: auto;
+  padding: 0.65rem 0.72rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.upload-log-console p + p {
+  margin-top: 0.28rem;
+}
+
 .token-actions {
   margin-top: 0.7rem;
   display: grid;

@@ -16,6 +16,19 @@ export default function DocumentUpload() {
   const [tokenUsage, setTokenUsage] = useState(null);
   const [tokenError, setTokenError] = useState("");
   const [isLoadingTokenUsage, setIsLoadingTokenUsage] = useState(false);
+  const [uploadLogs, setUploadLogs] = useState([]);
+
+  const pushUploadLog = (message) => {
+    const text = String(message || "").trim();
+    if (!text) {
+      return;
+    }
+
+    setUploadLogs((prev) => {
+      const next = [...prev, `[${new Date().toLocaleTimeString()}] ${text}`];
+      return next.slice(-80);
+    });
+  };
 
   const fetchGraphStatus = async () => {
     setIsLoadingStatus(true);
@@ -139,12 +152,31 @@ export default function DocumentUpload() {
     setProgressLabel("Starting upload...");
     setStatusMessage("");
     setErrorMessage("");
+    setUploadLogs([]);
 
     const formData = new FormData();
     formData.append("file", selectedFile);
 
+    const requestId = `upload-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const progressStream = new EventSource(buildApiUrl(`/upload/progress/${requestId}`));
+    progressStream.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data || "{}");
+        pushUploadLog(payload.message || payload.type || "Processing...");
+      } catch {
+        pushUploadLog("Received progress update.");
+      }
+    };
+
+    progressStream.onerror = () => {
+      pushUploadLog("Progress stream disconnected.");
+      progressStream.close();
+    };
+
+    pushUploadLog(`Upload session started. Request ID: ${requestId}`);
+
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", buildApiUrl("/upload"));
+    xhr.open("POST", buildApiUrl(`/upload?requestId=${encodeURIComponent(requestId)}`));
     xhr.timeout = 10 * 60 * 1000;
 
     let processingInterval = null;
@@ -194,12 +226,14 @@ export default function DocumentUpload() {
     xhr.onload = () => {
       clearProcessingTicker();
       setIsUploading(false);
+      progressStream.close();
 
       try {
         const response = JSON.parse(xhr.responseText || "{}");
 
         if (xhr.status >= 200 && xhr.status < 300) {
           setStatusMessage(response.message || "Upload completed successfully.");
+          pushUploadLog("Upload and ingestion completed successfully.");
           setProgressLabel("Completed");
           setSelectedFile(null);
           setUploadProgress(100);
@@ -210,7 +244,7 @@ export default function DocumentUpload() {
 
         setProgressLabel("Failed");
         setErrorMessage(response.message || "Upload failed.");
-      } catch (error) {
+      } catch {
         setProgressLabel("Failed");
         setErrorMessage("Upload failed with an unexpected response.");
       }
@@ -219,15 +253,19 @@ export default function DocumentUpload() {
     xhr.onerror = () => {
       clearProcessingTicker();
       setIsUploading(false);
+      progressStream.close();
       setProgressLabel("Network error");
       setErrorMessage("Network error while uploading the PDF.");
+      pushUploadLog("Network error while uploading PDF.");
     };
 
     xhr.ontimeout = () => {
       clearProcessingTicker();
       setIsUploading(false);
+      progressStream.close();
       setProgressLabel("Timed out");
       setErrorMessage("Upload timed out while backend was processing the PDF.");
+      pushUploadLog("Upload timed out.");
     };
 
     xhr.send(formData);
@@ -350,6 +388,17 @@ export default function DocumentUpload() {
       {errorMessage ? <p className="status status-error">{errorMessage}</p> : null}
       {statusError ? <p className="status status-error">{statusError}</p> : null}
       {tokenError ? <p className="status status-error">{tokenError}</p> : null}
+
+      <section className="knowledge-status" aria-live="polite">
+        <h3>Live Upload Processing Logs</h3>
+        <div className="upload-log-console">
+          {uploadLogs.length > 0 ? (
+            uploadLogs.map((entry, index) => <p key={`log-${index}`}>{entry}</p>)
+          ) : (
+            <p className="knowledge-empty">No upload logs yet. Start an upload to see live progress.</p>
+          )}
+        </div>
+      </section>
 
       <section className="knowledge-status" aria-live="polite">
         <h3>Token Usage Tracking</h3>

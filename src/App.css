@@ -1,0 +1,129 @@
+.app-shell {
+  position: relative;
+  min-height: 100vh;
+  padding: 2.2rem 1rem 2.8rem;
+  display: grid;
+  gap: 1.4rem;
+}
+
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(18, 135, 122, 0.26), transparent 30%),
+    radial-gradient(circle at 86% 20%, rgba(215, 126, 36, 0.24), transparent 32%),
+    linear-gradient(145deg, #f3f7f6 0%, #f7eee0 44%, #edf3fb 100%);
+}
+
+.app-header {
+  margin: 0 auto;
+  width: min(1120px, 100%);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: color-mix(in srgb, #ffffff 85%, transparent);
+  backdrop-filter: blur(8px);
+  padding: 1.5rem 1.4rem;
+  box-shadow: 0 16px 34px rgba(20, 45, 55, 0.1);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  font-size: 0.77rem;
+  letter-spacing: 0.14em;
+  color: #3c7168;
+  margin: 0;
+}
+
+.app-header h1 {
+  margin: 0.3rem 0 0.55rem;
+  font-size: clamp(1.5rem, 3.4vw, 2.3rem);
+  line-height: 1.06;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--ink-soft);
+  max-width: 70ch;
+  font-size: 0.98rem;
+}
+
+.panel-grid {
+  margin: 0 auto;
+  width: min(1120px, 100%);
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+}
+
+.health-gate {
+  margin: 0 auto;
+  width: min(1120px, 100%);
+  min-height: 62vh;
+  display: grid;
+  place-items: center;
+}
+
+.health-card {
+  width: min(560px, 100%);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: color-mix(in srgb, #ffffff 90%, transparent);
+  box-shadow: 0 16px 34px rgba(20, 45, 55, 0.14);
+  backdrop-filter: blur(8px);
+  padding: 1.4rem 1.3rem;
+  text-align: center;
+}
+
+.health-card h2 {
+  margin: 0.4rem 0 0.45rem;
+  font-size: 1.35rem;
+}
+
+.health-card p {
+  color: var(--ink-soft);
+}
+
+.health-subtle {
+  margin-top: 0.45rem;
+  font-size: 0.86rem;
+}
+
+.health-spinner {
+  width: 46px;
+  height: 46px;
+  margin: 0 auto;
+  border-radius: 999px;
+  border: 4px solid #c8dce6;
+  border-top-color: #1d7e9c;
+  animation: spin 900ms linear infinite;
+}
+
+.health-retry-btn {
+  margin-top: 0.8rem;
+  border: none;
+  border-radius: 14px;
+  padding: 0.68rem 1rem;
+  font-weight: 700;
+  font-family: var(--font-head);
+  color: #fff;
+  background: linear-gradient(130deg, #106f8f 0%, #0d607d 100%);
+  cursor: pointer;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 980px) {
+  .panel-grid {
+    grid-template-columns: 1fr;
+  }
+}

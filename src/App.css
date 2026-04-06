@@ -113,6 +113,31 @@
   cursor: pointer;
 }
 
+.token-card {
+  max-width: 480px;
+}
+
+.token-form {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.token-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  background: #fff;
+  color: var(--ink);
+}
+
+.token-input:focus {
+  outline: 2px solid color-mix(in srgb, #106f8f 35%, white);
+  border-color: #106f8f;
+}
+
 @keyframes spin {
   from {
     transform: rotate(0deg);

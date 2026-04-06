@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { buildApiUrl } from "../config/api";
+import { appendAccessToken, authedFetch, buildApiUrl, getAccessToken } from "../config/api";
 
 export default function DocumentUpload() {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -35,7 +35,7 @@ export default function DocumentUpload() {
     setStatusError("");
 
     try {
-      const response = await fetch(buildApiUrl("/admin/graph-status"));
+      const response = await authedFetch("/admin/graph-status");
       const payload = await response.json();
 
       if (!response.ok) {
@@ -67,7 +67,7 @@ export default function DocumentUpload() {
     setTokenError("");
 
     try {
-      const response = await fetch(buildApiUrl("/admin/token-usage"));
+      const response = await authedFetch("/admin/token-usage");
       const payload = await response.json();
       if (!response.ok) {
         throw new Error(payload.message || "Failed to load token usage.");
@@ -83,7 +83,7 @@ export default function DocumentUpload() {
   const resetTokenUsage = async () => {
     setTokenError("");
     try {
-      const response = await fetch(buildApiUrl("/admin/token-usage/reset"), {
+      const response = await authedFetch("/admin/token-usage/reset", {
         method: "POST",
       });
       const payload = await response.json();
@@ -158,7 +158,7 @@ export default function DocumentUpload() {
     formData.append("file", selectedFile);
 
     const requestId = `upload-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    const progressStream = new EventSource(buildApiUrl(`/upload/progress/${requestId}`));
+    const progressStream = new EventSource(appendAccessToken(`/upload/progress/${requestId}`));
     progressStream.onmessage = (event) => {
       try {
         const payload = JSON.parse(event.data || "{}");
@@ -177,6 +177,10 @@ export default function DocumentUpload() {
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", buildApiUrl(`/upload?requestId=${encodeURIComponent(requestId)}`));
+    const accessToken = getAccessToken();
+    if (accessToken) {
+      xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
+    }
     xhr.timeout = 10 * 60 * 1000;
 
     let processingInterval = null;
@@ -288,7 +292,7 @@ export default function DocumentUpload() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(buildApiUrl("/admin/clear-graph"), {
+      const response = await authedFetch("/admin/clear-graph", {
         method: "POST",
       });
 

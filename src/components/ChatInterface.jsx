@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { buildApiUrl } from "../config/api";
+import { authedFetch } from "../config/api";
 
 export default function ChatInterface() {
   const [messages, setMessages] = useState([
@@ -16,7 +16,7 @@ export default function ChatInterface() {
 
   const fetchChatTokenUsage = async () => {
     try {
-      const response = await fetch(buildApiUrl("/admin/token-usage"));
+      const response = await authedFetch("/admin/token-usage");
       const payload = await response.json();
       if (!response.ok) {
         return;
@@ -57,7 +57,7 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(buildApiUrl("/chat"), {
+      const response = await authedFetch("/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
